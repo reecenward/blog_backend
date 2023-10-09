@@ -3,7 +3,7 @@ const { PrismaClient } = require('@prisma/client'); // Import Prisma Client
 const cors = require('cors'); // Import the cors package
 
 const app = express();
-const port = 3002; // You can change the port as needed
+const port = 3000; // You can change the port as needed
 const prisma = new PrismaClient(); // Initialize Prisma Client
 
 // Define routes or middleware (e.g., for parsing JSON)
