@@ -12,3 +12,21 @@ model test {
   id   Int     @id @default(autoincrement())
   name String  
 }
+
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  password String
+  salt     String
+}
+
+model Post {
+  id      Int       @id @default(autoincrement())
+  title   String
+  content Json   // Store JSON data in a JSONB field
+}
+
+model Image {
+  id      Int       @id @default(autoincrement())
+  imageName String
+}
