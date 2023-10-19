@@ -11,20 +11,16 @@ const loginroutes = require('./routes/login');
 const postroutes = require('./routes/post');
 const postsroutes = require('./routes/posts');
 
-
 const app = express();
 const port = process.env.PORT || 3001;
-
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
-}
-
+};
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({ origin: ['http://localhost:3000', 'https://blog-tau-ashy.vercel.app'], credentials: true }));
 app.use(helmet());
 app.use(cookieParser());
-
 
 app.use('/edit', editroutes); 
 app.use('/image', imageroutes); 
