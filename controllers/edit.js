@@ -1,8 +1,16 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { validationResult } = require('express-validator');
 
 exports.CreatePost = async (req, res) => {
   try {
+
+    const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  
     const { title, content } = req.body;
     
     if (!title || !content) {
@@ -52,7 +60,10 @@ exports.UpdatePost = async (req, res) => {
 exports.DeletePost = async (req, res) => {
     try {
       const { id } = req.params;
-  
+      
+      if (!id) {
+        return res.status(400).json({ error: 'id cannot be blank' });
+      }
       // Delete the post in the database based on the ID
       await prisma.post.delete({
         where: { id: parseInt(id) }, // Assuming ID is an integer
@@ -69,6 +80,10 @@ exports.DeletePost = async (req, res) => {
     try {
       const { id } = req.params; // Correct parameter name is 'id'
   
+      if (!id) {
+        return res.status(400).json({ error: 'id cannot be blank' });
+      }
+
       console.log('Received id parameter:', id);
   
       const post = await prisma.post.findFirst({

@@ -6,6 +6,8 @@ const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString("hex"
 const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
+
+
 const s3 = new S3Client({
   credentials: {
     accessKeyId: process.env.ACCESS_KEY,
@@ -29,10 +31,46 @@ exports.get = async (req, res) => {
   
     res.send(posts);
   };
+
+  exports.getImageById = async (req, res) => {
+    try {
+      const id = +req.params.id;
+  
+      if (!id) {
+        return res.status(400).json({ error: 'ID cannot be blank' });
+      }
+  
+      const image = await prisma.image.findUnique({ where: { id } });
+  
+      if (!image) {
+        res.status(404).send('Image not found');
+        return;
+      }
+  
+      const getObjectParams = {
+        Bucket: process.env.BUCKET_NAME,
+        Key: image.imageName,
+      };
+  
+      const command = new GetObjectCommand(getObjectParams);
+      const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+  
+      // Return the image data with the signed URL
+      res.send({ ...image, imageUrl: url });
+    } catch (error) {
+      console.error('Error fetching image by ID:', error);
+      res.status(500).json({ error: 'Error fetching image by ID' });
+    }
+  };
+  
   
 exports.delete = async (req, res) => {
     const id = +req.params.id
   
+    if (!id) {
+      return res.status(400).json({ error: 'id cannot be blank' });
+    }
+
     const post = await prisma.image.findUnique({where:{id}});
   
     if(!post){ 
@@ -57,7 +95,7 @@ exports.upload = async (req, res) => {
     try {
       console.log("req.body: ",req.body)
       console.log("req.file: ",req.file)
-  
+      
       const buffer = await sharp(req.file.buffer).resize({height: 1920, width: 1080, fit: "contain"}).toBuffer()
   
       const ImageName = randomImageName()

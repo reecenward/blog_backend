@@ -6,6 +6,8 @@ const app = express();
 const passportJWT = require('passport-jwt');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const argon2 = require('argon2');
+
 
 app.use(passport.initialize());
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -34,6 +36,35 @@ passport.use(
       }
     )
   );
+
+// passport.use(
+//   new LocalStrategy(
+//     {
+//       usernameField: 'username',
+//       passwordField: 'password',
+//     },
+//     async (username, password, done) => {
+//       try {
+//         const user = await prisma.user.findUnique({
+//           where: { username },
+//         });
+
+//         if (!user || !(await argon2.verify(user.password, password))) {
+//           return done(null, false, { message: 'Invalid credentials' });
+//         }
+
+//         return done(null, user);
+//       } catch (error) {
+//         return done(error);
+//       }
+//     }
+//   )
+// );
+
+//const hashedPassword = await argon2.hash(userPassword);
+// Save the hashedPassword in your database when creating the user.
+
+
 
 const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
